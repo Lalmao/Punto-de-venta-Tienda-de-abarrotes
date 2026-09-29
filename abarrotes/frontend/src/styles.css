@@ -1,0 +1,23 @@
+body{font-family:system-ui,sans-serif;margin:0;background:#f4f5f7;color:#222}
+header{background:#1f6f4a;color:#fff;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0 16px 0 0}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button{background:transparent;color:#fff;border:1px solid #ffffff88;padding:6px 14px;border-radius:6px;cursor:pointer}
+nav button.on{background:#fff;color:#1f6f4a}
+main{max-width:960px;margin:20px auto;padding:0 16px}
+section{background:#fff;padding:16px;border-radius:8px}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #e5e5e5}
+input,select,button{font-size:15px;padding:6px 8px}
+input[type=number]{width:90px}
+.buscar{width:100%;box-sizing:border-box}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.row label{display:flex;flex-direction:column;font-size:13px;gap:2px}
+.btn{background:#1f6f4a;color:#fff;border:0;border-radius:6px;cursor:pointer;padding:8px 16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sec{background:#e5e5e5;color:#222}
+.chip{margin:2px}
+.total{font-size:28px;font-weight:bold;text-align:right}
+#msg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:8px;color:#fff}
+.ok{background:#1f6f4a}.err{background:#b3261e}
+.bajo{color:#b3261e;font-weight:bold}

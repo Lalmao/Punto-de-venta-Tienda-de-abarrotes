@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abarrotes Placencia</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#f4f5f7;color:#222}
+  header{background:#1f6f4a;color:#fff;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0 16px 0 0}
+  nav button{background:transparent;color:#fff;border:1px solid #ffffff88;padding:6px 14px;border-radius:6px;cursor:pointer}
+  nav button.on{background:#fff;color:#1f6f4a}
+  main{max-width:960px;margin:20px auto;padding:0 16px}
+  section{display:none;background:#fff;padding:16px;border-radius:8px}
+  section.on{display:block}
+  table{width:100%;border-collapse:collapse;margin:10px 0}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #e5e5e5}
+  input,select,button{font-size:15px;padding:6px 8px}
+  input[type=number]{width:90px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .row label{display:flex;flex-direction:column;font-size:13px;gap:2px}
+  .btn{background:#1f6f4a;color:#fff;border:0;border-radius:6px;cursor:pointer;padding:8px 16px}
+  .btn.sec{background:#e5e5e5;color:#222}
+  .total{font-size:28px;font-weight:bold;text-align:right}
+  #msg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:8px;color:#fff;display:none}
+  .ok{background:#1f6f4a}.err{background:#b3261e}
+  .bajo{color:#b3261e;font-weight:bold}
+  #res-venta button,#res-compra button{margin:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛒 Abarrotes Placencia</h1>
+  <nav>
+    <button data-t="venta" class="on">Nueva venta</button>
+    <button data-t="compra">Nueva compra</button>
+    <button data-t="inventario">Inventario</button>
+    <button data-t="hventas">Ventas</button>
+    <button data-t="hcompras">Compras</button>
+  </nav>
+</header>
+<main>
+
+<section id="venta" class="on">
+  <div class="row">
+    <label>Empleado que atiende <select id="v-emp"></select></label>
+    <label>Cliente (opcional)
+      <select id="v-cli"><option value="">Público general</option></select></label>
+    <label>Método de pago
+      <select id="v-pago"><option>EFECTIVO</option><option>TARJETA_DEBITO</option>
+      <option>TARJETA_CREDITO</option><option>TRANSFERENCIA</option></select></label>
+  </div>
+  <input id="v-buscar" placeholder="Buscar producto por nombre…" style="width:100%;box-sizing:border-box">
+  <div id="res-venta"></div>
+  <table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead>
+    <tbody id="v-lineas"></tbody></table>
+  <div class="total">Total: $<span id="v-total">0.00</span></div>
+  <div class="row" id="v-efectivo">
+    <label>Recibido <input type="number" id="v-recibido" min="0" step="0.5"></label>
+    <label>Cambio <b id="v-cambio" style="font-size:20px">$0.00</b></label>
+  </div>
+  <button class="btn" onclick="cobrar()">Cobrar</button>
+</section>
+
+<section id="compra">
+  <div class="row">
+    <label>Proveedor <select id="c-prov"></select></label>
+    <label>Núm. de factura <input id="c-fact" maxlength="30"></label>
+    <label>Empleado que registra <select id="c-emp"></select></label>
+    <label style="justify-content:flex-end"><span><input type="checkbox" id="c-act"> Actualizar precio de costo</span></label>
+  </div>
+  <input id="c-buscar" placeholder="Buscar producto por nombre…" style="width:100%;box-sizing:border-box">
+  <div id="res-compra"></div>
+  <table><thead><tr><th>Producto</th><th>Cantidad</th><th>Costo unit.</th><th>Subtotal</th><th></th></tr></thead>
+    <tbody id="c-lineas"></tbody></table>
+  <div class="total">Total: $<span id="c-total">0.00</span></div>
+  <button class="btn" onclick="guardarCompra()">Registrar compra</button>
+</section>
+
+<section id="inventario">
+  <div class="row"><input id="i-buscar" placeholder="Buscar…">
+    <label style="flex-direction:row;align-items:center"><input type="checkbox" id="i-bajo"> Solo stock bajo (≤ 10)</label></div>
+  <table><thead><tr><th>ID</th><th>Producto</th><th>Categoría</th><th>Costo</th><th>Venta</th><th>Stock</th></tr></thead>
+    <tbody id="i-filas"></tbody></table>
+</section>
+
+<section id="hventas"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Empleado</th><th>Pago</th><th>Total</th></tr></thead>
+  <tbody id="hv-filas"></tbody></table></section>
+
+<section id="hcompras"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Proveedor</th><th>Factura</th><th>Empleado</th><th>Total</th></tr></thead>
+  <tbody id="hc-filas"></tbody></table></section>
+
+</main>
+<div id="msg"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => Number(n).toFixed(2);
+
+async function api(url, opts) {
+  const r = await fetch(url, opts);
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Datos inválidos: revisa el formulario");
+  return d;
+}
+function aviso(texto, ok = true) {
+  const m = $("msg"); m.textContent = texto; m.className = ok ? "ok" : "err"; m.style.display = "block";
+  setTimeout(() => m.style.display = "none", 4000);
+}
+const post = (url, body) => api(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+
+// ---- Pestañas ----
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button, section").forEach(e => e.classList.remove("on"));
+  b.classList.add("on"); $(b.dataset.t).classList.add("on");
+  if (b.dataset.t === "inventario") cargarInventario();
+  if (b.dataset.t === "hventas") cargarVentas();
+  if (b.dataset.t === "hcompras") cargarCompras();
+});
+
+// ---- Carrito genérico (sirve para ventas y compras) ----
+function Carrito(prefijo, nombreVar, editable) {
+  const c = {
+    lineas: [],
+    agregar(p) {
+      const l = this.lineas.find(x => x.id === p.ID_Producto);
+      if (l) l.cantidad++;
+      else this.lineas.push({id: p.ID_Producto, nombre: p.Nombre, cantidad: 1,
+                             precio: editable ? p.Precio_Costo : p.Precio_Venta});
+      this.pintar();
+    },
+    cambiar(i, campo, valor) { this.lineas[i][campo] = Number(valor); this.pintar(); },
+    quitar(i) { this.lineas.splice(i, 1); this.pintar(); },
+    total() { return this.lineas.reduce((s, l) => s + l.cantidad * l.precio, 0); },
+    vaciar() { this.lineas = []; this.pintar(); },
+    pintar() {
+      $(prefijo + "-lineas").innerHTML = this.lineas.map((l, i) => `<tr>
+        <td>${l.nombre}</td>
+        <td><input type="number" min="1" value="${l.cantidad}" onchange="${nombreVar}.cambiar(${i},'cantidad',this.value)"></td>
+        <td>${editable ? `<input type="number" min="0" step="0.01" value="${l.precio}" onchange="${nombreVar}.cambiar(${i},'precio',this.value)">` : "$" + money(l.precio)}</td>
+        <td>$${money(l.cantidad * l.precio)}</td>
+        <td><button class="btn sec" onclick="${nombreVar}.quitar(${i})">✕</button></td></tr>`).join("");
+      $(prefijo + "-total").textContent = money(this.total());
+      if (prefijo === "v") calcularCambio();
+    }
+  };
+  return c;
+}
+const carritoV = Carrito("v", "carritoV", false);
+const carritoC = Carrito("c", "carritoC", true);
+
+let catalogo = [];
+function buscador(inputId, resId, carrito) {
+  $(inputId).oninput = e => {
+    const q = e.target.value.trim().toLowerCase();
+    $(resId).innerHTML = !q ? "" : catalogo.filter(p => p.Nombre.toLowerCase().includes(q)).slice(0, 8)
+      .map(p => `<button class="btn sec" data-id="${p.ID_Producto}">${p.Nombre} (stock ${p.Stock_Actual})</button>`).join("");
+    $(resId).querySelectorAll("button").forEach(b => b.onclick = () => {
+      carrito.agregar(catalogo.find(p => p.ID_Producto == b.dataset.id));
+      $(inputId).value = ""; $(resId).innerHTML = "";
+    });
+  };
+}
+buscador("v-buscar", "res-venta", carritoV);
+buscador("c-buscar", "res-compra", carritoC);
+
+function calcularCambio() {
+  const cambio = Number($("v-recibido").value || 0) - carritoV.total();
+  $("v-cambio").textContent = "$" + money(Math.max(cambio, 0));
+}
+$("v-recibido").oninput = calcularCambio;
+$("v-pago").onchange = () => $("v-efectivo").style.display = $("v-pago").value === "EFECTIVO" ? "flex" : "none";
+
+async function cobrar() {
+  try {
+    const r = await post("/api/ventas", {
+      idEmpleado: Number($("v-emp").value),
+      idCliente: $("v-cli").value ? Number($("v-cli").value) : null,
+      metodoPago: $("v-pago").value,
+      lineas: carritoV.lineas.map(l => ({idProducto: l.id, cantidad: l.cantidad}))
+    });
+    aviso(`Venta #${r.idVenta} guardada. Total $${money(r.total)}` + (r.puntosGanados ? ` (+${r.puntosGanados} puntos)` : ""));
+    carritoV.vaciar(); $("v-recibido").value = ""; await cargarCatalogos();
+  } catch (e) { aviso(e.message, false); }
+}
+
+async function guardarCompra() {
+  try {
+    const r = await post("/api/compras", {
+      idProveedor: Number($("c-prov").value), idEmpleado: Number($("c-emp").value),
+      numFactura: $("c-fact").value.trim(), actualizarCosto: $("c-act").checked,
+      lineas: carritoC.lineas.map(l => ({idProducto: l.id, cantidad: l.cantidad, costoUnitario: l.precio}))
+    });
+    aviso(`Compra #${r.idCompra} guardada. Total $${money(r.total)}`);
+    carritoC.vaciar(); $("c-fact").value = ""; await cargarCatalogos();
+  } catch (e) { aviso(e.message, false); }
+}
+
+// ---- Listados ----
+const opciones = (lista, id, txt) => lista.map(x => `<option value="${x[id]}">${x[txt]}</option>`).join("");
+
+async function cargarCatalogos() {
+  const [emps, clis, provs, prods] = await Promise.all([
+    api("/api/empleados"), api("/api/clientes"), api("/api/proveedores"), api("/api/productos")]);
+  catalogo = prods;
+  $("v-emp").innerHTML = $("c-emp").innerHTML = opciones(emps, "ID_Empleado", "Nombre");
+  $("v-cli").innerHTML = '<option value="">Público general</option>' + opciones(clis, "ID_Cliente", "Nombre");
+  $("c-prov").innerHTML = opciones(provs, "ID_Proveedor", "Nombre_Empresa");
+}
+async function cargarInventario() {
+  const q = encodeURIComponent($("i-buscar").value);
+  const lista = $("i-bajo").checked ? await api("/api/productos/stock-bajo") : await api("/api/productos?q=" + q);
+  $("i-filas").innerHTML = lista.map(p => `<tr><td>${p.ID_Producto}</td><td>${p.Nombre}</td><td>${p.Categoria}</td>
+    <td>$${money(p.Precio_Costo)}</td><td>$${money(p.Precio_Venta)}</td>
+    <td class="${p.Stock_Actual <= 10 ? "bajo" : ""}">${p.Stock_Actual}</td></tr>`).join("");
+}
+$("i-buscar").oninput = cargarInventario; $("i-bajo").onchange = cargarInventario;
+async function cargarVentas() {
+  $("hv-filas").innerHTML = (await api("/api/ventas")).map(v => `<tr><td>${v.ID_Venta}</td><td>${v.Fecha_Hora}</td>
+    <td>${v.Cliente}</td><td>${v.Empleado}</td><td>${v.Metodo_Pago}</td><td>$${money(v.Total)}</td></tr>`).join("");
+}
+async function cargarCompras() {
+  $("hc-filas").innerHTML = (await api("/api/compras")).map(c => `<tr><td>${c.ID_Compra}</td><td>${c.Fecha_Hora}</td>
+    <td>${c.Proveedor}</td><td>${c.Num_Factura}</td><td>${c.Empleado}</td><td>$${money(c.Total)}</td></tr>`).join("");
+}
+
+cargarCatalogos().catch(e => aviso("No se pudo conectar a la base de datos: " + e.message, false));
+</script>
+</body>
+</html>
