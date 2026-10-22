@@ -1,0 +1,8 @@
+2026-10-21 21:30:34 | RESPALDO | mysql -> abarrotes_mysql_20261021_213034.sql
+2026-10-21 21:31:45 | RESPALDO | postgres -> abarrotes_pg_20261021_213144.sql
+2026-10-21 21:31:53 | ELIMINAR_RESPALDO | abarrotes_pg_20261021_213144.sql
+2026-10-21 21:31:57 | RESPALDO | mysql -> abarrotes_mysql_20261021_213157.sql
+2026-10-21 21:33:05 | CREAR_USUARIO | Laura@localhost (4 grants)
+2026-10-21 21:33:31 | CREAR_USUARIO | Laura_admin@localhost (1 grants)
+2026-10-21 21:36:31 | BLOQUEAR | Laura@localhost
+2026-10-21 21:36:33 | DESBLOQUEAR | Laura@localhost

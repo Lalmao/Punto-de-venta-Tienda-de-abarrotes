@@ -1,0 +1,39 @@
+body{font-family:system-ui,sans-serif;margin:0;background:#f4f5f7;color:#222}
+header{background:#1f6f4a;color:#fff;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0 16px 0 0}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button{background:transparent;color:#fff;border:1px solid #ffffff88;padding:6px 14px;border-radius:6px;cursor:pointer}
+nav button.on{background:#fff;color:#1f6f4a}
+main{max-width:960px;margin:20px auto;padding:0 16px}
+section{background:#fff;padding:16px;border-radius:8px}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #e5e5e5}
+input,select,button{font-size:15px;padding:6px 8px}
+input[type=number]{width:90px}
+.buscar{width:100%;box-sizing:border-box}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.row label{display:flex;flex-direction:column;font-size:13px;gap:2px}
+.btn{background:#1f6f4a;color:#fff;border:0;border-radius:6px;cursor:pointer;padding:8px 16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sec{background:#e5e5e5;color:#222}
+.chip{margin:2px}
+.total{font-size:28px;font-weight:bold;text-align:right}
+#msg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:8px;color:#fff}
+.ok{background:#1f6f4a}.err{background:#b3261e}
+.bajo{color:#b3261e;font-weight:bold}
+.subtabs{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.subtabs button{border:1px solid #1f6f4a;background:#fff;color:#1f6f4a;border-radius:6px;padding:6px 14px;cursor:pointer}
+.subtabs button.on{background:#1f6f4a;color:#fff}
+.diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 16px;font-size:14px;background:#f4f5f7;padding:10px;border-radius:6px}
+.okt{color:#1f6f4a;font-weight:bold}
+.mini{font-size:13px;color:#555}
+pre{background:#272822;color:#e6e6e6;padding:10px;border-radius:6px;overflow:auto;font-size:13px;white-space:pre-wrap}
+.card{border:1px solid #e5e5e5;border-radius:8px;padding:12px;margin:12px 0}
+.btn.danger{background:#b3261e}
+.btn.small{padding:4px 10px;font-size:13px}
+td .btn{margin-right:4px}
+.scroll{overflow-x:auto}
+.cols{display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 0}
+.cols label{font-size:13px;flex-direction:row;align-items:center;gap:4px}
+.perm-grid td,.perm-grid th{text-align:center}
+.perm-grid td:first-child,.perm-grid th:first-child{text-align:left}
